@@ -56,6 +56,23 @@ local entity = Creator.createEntity({
 entity.Debug.OnEntitySpawned = function(entityTable)
     print("Entity has spawned:", entityTable.Model)
 --// ========================================== --
+--//    PLAY CUSTOM SPAWN AUDIO ON SCREEN       --
+--// ========================================== --
+pcall(function()
+    if not isfile("a60_spawn.mp3") then
+        writefile("a60_spawn.mp3", game:HttpGet(SPAWN_SOUND_URL))
+    end
+    
+    local screenSpawnSound = Instance.new("Sound")
+    screenSpawnSound.SoundId = getcustomasset("a60_spawn.mp3")
+    screenSpawnSound.Volume = 5
+    screenSpawnSound.Parent = SoundService
+    screenSpawnSound:Play()
+    
+    game:GetService("Debris"):AddItem(screenSpawnSound, 10)
+end)
+
+--// ========================================== --
 --//     FORCE-ACTIVATED FACE GLITCH SCRIPT     --
 --// ========================================== --
 local bGui = model:FindFirstChildWhichIsA("BillboardGui", true)
@@ -129,6 +146,90 @@ if bGui then
 else
     warn("A-60 BillboardGui face container not found in asset tree")
 end
+
+--// ========================================== --
+--//         EXTREME CAMERA SHAKE SYSTEM        --
+--// ========================================== --
+local shakeConnection
+shakeConnection = RunService.RenderStepped:Connect(function()
+    if not model.Parent or not hrp or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+        if shakeConnection then shakeConnection:Disconnect() end
+        return
+    end
+    
+    local charHRP = player.Character.HumanoidRootPart
+    local distance = (hrp.Position - charHRP.Position).Magnitude
+    local currentIntensity = 0
+    
+    if isIdling then
+        -- Force absolute maximum intensity screen breaking shake during the idle sequence
+        currentIntensity = SHAKE_MAX_INTENSITY
+    elseif distance <= SHAKE_MAX_RADIUS then
+        -- Scaled dynamic extreme shake based on velocity rush proximity
+        local proximityScale = 1 - (distance / SHAKE_MAX_RADIUS)
+        currentIntensity = SHAKE_MAX_INTENSITY * proximityScale
+    end
+    
+    if currentIntensity > 0 then
+        local shakeX = math.random(-100, 100) / 100 * currentIntensity
+        local shakeY = math.random(-100, 100) / 100 * currentIntensity
+        local shakeZ = math.random(-100, 100) / 100 * currentIntensity
+        
+        camera.CFrame = camera.CFrame * CFrame.Angles(math.rad(shakeX), math.rad(shakeY), math.rad(shakeZ))
+    end
+end)
+
+--// ========================================== --
+--//    MASSIVE KILL RANGE & JUMPSCARE HAZARD   --
+--// ========================================== --
+local function triggerJumpscare()
+    if shakeConnection then shakeConnection:Disconnect() end
+    isIdling = false
+    
+    local playerGui = player:WaitForChild("PlayerGui")
+    local gui = Instance.new("ScreenGui", playerGui)
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 999999
+
+    local flash = Instance.new("Frame", gui)
+    flash.Size = UDim2.new(1, 0, 1, 0)
+    flash.BorderSizePixel = 0
+    flash.BackgroundColor3 = Color3.fromRGB(0, 0, 0) 
+    flash.ZIndex = 10
+
+    local image = Instance.new("ImageLabel", gui)
+    image.AnchorPoint = Vector2.new(0.5, 0.5)
+    image.Position = UDim2.new(0.5, 0, 0.5, 0)
+    image.Size = UDim2.new(0, 350, 0, 350)
+    image.BackgroundTransparency = 1
+    image.Image = "rbxassetid://192267375" 
+    image.ZIndex = 11
+
+    pcall(function()
+        if not isfile("a60_jumpscare.mp3") then
+            writefile("a60_jumpscare.mp3", game:HttpGet(JUMPSCARE_SOUND_URL))
+        end
+        local sound = Instance.new("Sound", gui)
+        sound.SoundId = getcustomasset("a60_jumpscare.mp3")
+        sound.Volume = 8
+        sound:Play()
+    end)
+
+    TweenService:Create(image, TweenInfo.new(1.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, 2800, 0, 2800)}):Play()
+
+    task.spawn(function()
+        local start = os.clock()
+        while (os.clock() - start) < 1.4 do
+            -- Red and Black alternating strobe
+            flash.BackgroundColor3 = (math.random(1, 2) == 1) and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 0, 0)
+            image.Rotation = math.random(-12, 12)
+            image.Position = UDim2.new(0.5, math.random(-35, 35), 0.5, math.random(-35, 35))
+            task.wait(0.01)
+        end
+        gui:Destroy()
+    end)
+end
+
 
 entity.Debug.OnEntityDespawned = function(entityTable)
     print("Entity has despawned:", entityTable.Model)
