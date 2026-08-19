@@ -2,7 +2,7 @@
 -- Create entity
 local entity = Creator.createEntity({
     CustomName = "TrollFace", -- Custom name of your entity
-    Model = "rbxassetid://121808091891673", -- Can be GitHub file or rbxassetid
+    Model = "https://github.com/eliazbp92-collab/Distorted-mode/raw/main/A-60what.rbxm", -- Can be GitHub file or rbxassetid
     Speed = 250, -- Percentage, 100 = default Rush speed
     DelayTime = 2, -- Time before starting cycles (seconds)
     HeightOffset = 0,
