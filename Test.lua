@@ -35,16 +35,6 @@ local function processEntity(child)
 				particle.Color = ColorSequence.new(Color3.fromRGB(128, 0, 128))
 			end
 
-			if playSound then
-				playSound.PlaybackSpeed = 1
-				pcall(function()
-					playSound.Footsteps = 1
-				end)
-			end
-		end
-	end)
-end
-
 		elseif child.Name == "RushMoving" then
 			local rushNew = child:WaitForChild("RushNew", 3)
 			if not rushNew then return end
