@@ -2,7 +2,7 @@
 -- Create entity
 local entity = Creator.createEntity({
     CustomName = "A-60", -- Custom name of your entity
-    Model = "https://github.com/eliazbp92-collab/Distorted-mode/raw/main/A-60what.rbxm", -- Can be GitHub file or rbxassetid
+    Model = "https://github.com/eliazbp92-collab/Distorted-mode/raw/main/Place_10959918411_Model_A60Moving_1787258840.rbxm", -- Can be GitHub file or rbxassetid
     Speed = 375, -- Percentage, 100 = default Rush speed
     DelayTime = 3, -- Time before starting cycles (seconds)
     HeightOffset = 0,
